@@ -3,6 +3,10 @@
 import maya.cmds as mc
 import functools
 
+#function to create and display the UI
+#params - pWindowTitle - Title of the Window
+#	  pApply       - Apply callback
+#return - nothing
 def createUI(pWindowTitle, pApply):
 	winID = 'stairmaker'
 
@@ -12,28 +16,31 @@ def createUI(pWindowTitle, pApply):
 	mc.window(winID, title = "stairmaker", sizeable = False, resizeToFitChildren = True)
 	mc.rowColumnLayout(numberOfColumns = 3, columnWidth = [[1,75],[2,60],[3,60]], columnOffset = [[1,'right',3]])
 
-	#first row
+	#first row - obtain height range
 	mc.text('Height Range')
 	hm = mc.floatField(value = 0)
 	hM = mc.floatField(value = 10)
-
+	
+	#put height range in a list
 	hr = [hm,hM]
 
-	#second row
+	#second row - obtain width range
 	mc.text('Width Range')
 	wm = mc.floatField(value = 0)
 	wM = mc.floatField(value = 10)
 
+	#put width range in a list
 	wr = [wm,wM]
 
-	#third row
+	#third row - obtain depth range
 	mc.text('Depth Range')
 	dm = mc.floatField(value = 0)
 	dM = mc.floatField(value = 10)
 
+	#put depth range in a list
 	dr = [dm,dM]
 	
-	#fourth row
+	#fourth row - obtain number of steps
 	mc.text('Steps')
 	st = mc.intField(value = 10)
 	mc.separator(height = 10, style = 'none')
@@ -44,17 +51,25 @@ def createUI(pWindowTitle, pApply):
 	mc.separator(height = 10, style = 'none')
 	mc.separator(height = 10, style = 'none')
 
+	#cancel callback
 	def cancelCall( *pArgs):
 		if mc.window(winID, exists = True):
 			mc.deleteUI(winID)
 
-	#buttons			
+	#buttons - apply button calls the pApply callback	
 	mc.separator(height = 10, style = 'none')
 	mc.button(label = 'Apply', command = functools.partial(pApply, hr, wr, dr, st))
 	mc.button(label = 'Cancel', command = cancelCall)
 
+	#display the UI
 	mc.showWindow(winID)
 
+#function to make the staircase
+#params - pHr - Height range
+#	  pWr - Width range
+#	  pDr - Depth range
+#	  pSt - Number of steps
+#return - nothing
 def stairs(pHr, pWr, pDr, pSt):
 	print pHr, pWr, pSt
 	pHr = sorted(pHr)
@@ -66,6 +81,7 @@ def stairs(pHr, pWr, pDr, pSt):
 	d/=pSt
 	print h, w, d
 	staircase = []
+	#generate staircase step by step and add each step to the staircase list
 	for i in range(pSt):
 		sht = (h/pSt) * i
 		single = h/pSt
@@ -78,7 +94,12 @@ def stairs(pHr, pWr, pDr, pSt):
 
 	staircase = mc.polyUnite(*staircase, n = "Staircase")
 
-
+#apply function callback
+#params - pHr - Height range
+#	  pWr - Width range
+#	  pDr - Depth range
+#	  pSt - Number of steps
+#return - nothing
 def apply(pHr, pWr, pDr, pSt, *pArgs):	
 	hr = [mc.floatField(i, query = True, value = True) for i in pHr]
 	wr = [mc.floatField(i, query = True, value = True) for i in pWr]
@@ -87,6 +108,5 @@ def apply(pHr, pWr, pDr, pSt, *pArgs):
 	stairs(hr, wr, dr, st)
 	print "Apply Button Pressed"
 
+#create and display the UI
 createUI('stairmaker', apply)
-
-
